@@ -15,9 +15,11 @@ router.post("/", function (req, res) {
     console.log('Rules: Request body ',req.body);
     axios(axiosConfig)
         .then(function (response) {
-            if(response.data.errors)
-            res.json(response.data.errors);    
-            res.json(response.data.data);
+            if(response.data.errors) {
+                res.json(response.data.errors);
+            } else {
+                res.json(response.data.data);
+            }
         })
         .catch(function (error) {
             console.log(error);

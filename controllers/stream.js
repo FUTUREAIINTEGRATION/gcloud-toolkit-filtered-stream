@@ -57,10 +57,6 @@ router.get("/poll/:frequency/:delay", function (req, res) {
 async function streamTweets() {
     console.log('Streaming Tweets ..')
     //Listen to the stream
-    const options = {
-        timeout: 20000
-    }
-
     const streamURL = config.filtered_stream.host + config.filtered_stream.path + config.filtered_stream.tweet_fields + 
     config.filtered_stream.user_fields + config.filtered_stream.expansions + config.filtered_stream.media_fields + config.filtered_stream.place_fields + 
     config.filtered_stream.poll_fields;
@@ -68,8 +64,9 @@ async function streamTweets() {
     const stream = needle.get(streamURL, {
         headers: {
             Authorization: config.twitter_bearer_token
-        }
-    }, options);
+        },
+        timeout: 20000
+    });
 
     let splited_payload = '';
     stream.on('data', data => {
