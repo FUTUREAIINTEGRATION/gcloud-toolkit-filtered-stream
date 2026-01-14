@@ -57,10 +57,6 @@ router.get("/poll/:frequency/:delay", function (req, res) {
 async function streamTweets() {
     console.log('Streaming Tweets ..')
     //Listen to the stream
-    const options = {
-        timeout: 20000
-    }
-
     const streamURL = config.filtered_stream.host + config.filtered_stream.path + config.filtered_stream.tweet_fields + 
     config.filtered_stream.user_fields + config.filtered_stream.expansions + config.filtered_stream.media_fields + config.filtered_stream.place_fields + 
     config.filtered_stream.poll_fields;
@@ -68,25 +64,26 @@ async function streamTweets() {
     const stream = needle.get(streamURL, {
         headers: {
             Authorization: config.twitter_bearer_token
-        }
-    }, options);
+        },
+        timeout: 20000
+    });
 
+    let splited_payload = '';
     stream.on('data', data => {
-        var splited_payload = '';
         try {
             const json_payload = data.toString();
             console.log('Received Tweet ');
             if (json_payload) {
                 try {
                     JSON.parse(json_payload);
-                    gcp_infra_svcs.publishMessage(config.gcp_infra.topicName, JSON.stringify(json_payload));
+                    gcp_infra_svcs.publishMessage(config.gcp_infra.topicName, json_payload);
                 } catch (e) {
                     if (json_payload[0] === undefined || json_payload[0] === '\r' || json_payload[0] === '' || json_payload[0] === '\n') {
                         console.log('~~~ Heartbeat payload ~~~ ');
                     } else {
                         if (splited_payload.length > 0) {
-                            splited_payload.append(json_payload);
-                            gcp_infra_svcs.publishMessage(config.gcp_infra.topicName, JSON.stringify(splited_payload));
+                            splited_payload += json_payload;
+                            gcp_infra_svcs.publishMessage(config.gcp_infra.topicName, splited_payload);
                             console.log('splited_payload ', JSON.parse(splited_payload));
                             splited_payload = '';
                         }

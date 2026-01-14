@@ -186,7 +186,8 @@ async function insertRowsAsStream(datasetId, tableId, rows) {
 async function insertTweets(data) {
     var resultRows = [];
     data.forEach(function (tweetData, index) {
-        let tweet = JSON.parse(tweetData).data;
+        // synchronousPull already parsed the message, so tweetData is an Object.
+        let tweet = tweetData.data;
         if (tweet) {
             var cDate = new Date(tweet.created_at);
             if (tweet.context_annotations === undefined)
