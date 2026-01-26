@@ -5,3 +5,7 @@
 ## 2026-01-22 - Double Serialization in Stream Pipeline
 **Learning:** Sending `JSON.stringify(string)` creates a double-quoted string (e.g. `'"{\"key\":...}"'`), forcing the receiver to parse twice. This wastes CPU and increases payload size.
 **Action:** Always inspect the type of the payload before stringifying. If it is already a JSON string, send it as-is. Ensure the consumer can handle the raw format.
+
+## 2026-01-26 - Redundant Date Parsing
+**Learning:** `new Date(isoString).toISOString()` is a redundant round-trip when the input is already a valid ISO string. This consumes significant CPU in tight loops.
+**Action:** Trust upstream ISO strings (e.g. from Twitter API) and pass them directly to sinks like BigQuery that accept them.
