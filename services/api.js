@@ -1,15 +1,14 @@
-const { BigQuery } = require("@google-cloud/bigquery");
+const bigqueryClient = require('./bigquery-client.js');
 const config = require('../config.js');
 const utils = require('./utils.js');
 
-// Optimization: Reuse BigQuery client to avoid repeated instantiation overhead
-const bigqueryClient = new BigQuery();
-
 async function getTrends(minutes) {
     let tableName = config.gcp_infra.bq.dataSetId + '.' + config.gcp_infra.bq.table.tweets;
-    console.log('getTrends SQL ', utils.getTrends(tableName, minutes));
+    // Optimization: Generate SQL once and reuse it to avoid redundant function calls and string concatenation
+    const sqlQuery = utils.getTrends(tableName, minutes);
+    console.log('getTrends SQL ', sqlQuery);
     const options = {
-        query: utils.getTrends(tableName, minutes),
+        query: sqlQuery,
         location: 'US',
     };
 
