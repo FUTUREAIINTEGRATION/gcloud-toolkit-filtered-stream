@@ -2,7 +2,7 @@ const { BigQuery } = require("@google-cloud/bigquery");
 const { v1 } = require('@google-cloud/pubsub');
 const { PubSub } = require('@google-cloud/pubsub');
 const config = require('../config.js');
-const bigquery = new BigQuery();
+const bigquery = require('./bigquery-client.js');
 const fs = require('fs');
 
 const pubSubClient = new PubSub();
