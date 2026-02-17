@@ -12,3 +12,9 @@
 ## Bolt Journal
 
 - Avoid concurrent polling bursts by staggering requests using `setTimeout` with `delay * (i + 1)` instead of `delay`. This prevents sudden spikes in traffic and resource usage.
+=======
+
+## 2024-10-31 - Blocking Synchronous I/O
+**Learning:** `fs.readFileSync` blocks the Node.js event loop completely, preventing other tasks (like network requests or timers) from executing. This causes significant latency in high-concurrency environments.
+**Action:** Always use `fs.promises` or callback-based `fs` methods for file operations within async functions to allow the event loop to proceed.
+main

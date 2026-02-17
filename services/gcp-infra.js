@@ -2,7 +2,7 @@ const { BigQuery } = require("@google-cloud/bigquery");
 const { v1 } = require('@google-cloud/pubsub');
 const { PubSub } = require('@google-cloud/pubsub');
 const config = require('../config.js');
-const bigquery = new BigQuery();
+const bigquery = require('./bigquery-client.js');
 const fs = require('fs');
 
 const pubSubClient = new PubSub();
@@ -112,11 +112,11 @@ async function createDataSet(dataSetName) {
 
 async function createTables(datasetId) {
     //create tables
-    const tweets_schema = fs.readFileSync('./schema/tweets.json');
+    const tweets_schema = await fs.promises.readFile('./schema/tweets.json');
     const [tweets_table] = await bigquery.dataset(datasetId).createTable(config.gcp_infra.bq.table.tweets, { schema: JSON.parse(tweets_schema), location: 'US' });
     console.log(`Table ${tweets_table.id} created.`);
 
-    const users_schema = fs.readFileSync('./schema/users.json');
+    const users_schema = await fs.promises.readFile('./schema/users.json');
     const [users_table] = await bigquery.dataset(datasetId).createTable(config.gcp_infra.bq.table.users, { schema: JSON.parse(users_schema), location: 'US' });
     console.log(`Table ${users_table.id} created.`);
 }
@@ -209,7 +209,7 @@ async function insertTweets(data) {
         }
     });
     // insert Tweets
-    insertRowsAsStream(config.gcp_infra.bq.dataSetId, config.gcp_infra.bq.table.tweets, resultRows);
+    await insertRowsAsStream(config.gcp_infra.bq.dataSetId, config.gcp_infra.bq.table.tweets, resultRows);
 }
 
 async function insertUsers(usersData) {
@@ -246,9 +246,9 @@ async function insertStreamResults(results) {
     console.log('insertStreamResults ', results.length);
     let data = results;
     if (data != undefined)  {
-        insertTweets(data);
+        await insertTweets(data);
         //insertUsers(data);
     }
 }
 
-module.exports = { provisionDB, setupMsgInfra, cleanUp, publishMessage, synchronousPull };
+module.exports = { provisionDB, setupMsgInfra, cleanUp, publishMessage, synchronousPull, createTables };
